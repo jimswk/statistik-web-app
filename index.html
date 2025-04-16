@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      color: #333;
+      margin: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    h3 {
+      font-size: 18px;
+      color: #7f8c8d;
+      margin-top: 0;
+    }
+    .header {
+      margin-bottom: 20px;
+    }
+    select, input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #ecf0f1;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .hidden {
+      display: none;
+    }
+    .sub-country {
+      padding-left: 30px;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .save-btn {
+      background-color: #2ecc71;
+    }
+    .save-btn:hover {
+      background-color: #27ae60;
+    }
+    .reset-btn {
+      background-color: #e74c3c;
+    }
+    .reset-btn:hover {
+      background-color: #c0392b;
+    }
+    .total-row {
+      font-weight: bold;
+      background-color: #ecf0f1;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      max-width: 400px;
+      text-align: center;
+    }
+    .popup-content {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .popup a {
+      color: #3498db;
+      text-decoration: underline;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    .loading {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-top: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .category-header {
+      background-color: #3498db;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Perangkaan Ketibaan / Pemergian</h1>
+      <select id="month">
+        <option value="">Pilih Bulan</option>
+        <option value="Januari">Januari</option>
+        <option value="Februari">Februari</option>
+        <option value="Mac">Mac</option>
+        <option value="April">April</option>
+        <option value="Mei">Mei</option>
+        <option value="Jun">Jun</option>
+        <option value="Julai">Julai</option>
+        <option value="Ogos">Ogos</option>
+        <option value="September">September</option>
+        <option value="Oktober">Oktober</option>
+        <option value="November">November</option>
+        <option value="Disember">Disember</option>
+      </select>
+      <select id="year">
+        <option value="">Pilih Tahun</option>
+      </select>
+      <input type="text" id="office" placeholder="Masukkan Pejabat">
+    </div>
+
+    <div id="dataEntry">
+      <h3>Masukkan Data Ketibaan dan Pemergian</h3>
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th>WARGANEGARA</th>
+            <th>KETIBAAN</th>
+            <th>PELEPASAN</th>
+          </tr>
+        </thead>
+        <tbody id="mainBody"></tbody>
+      </table>
+      <br>
+      <button class="save-btn" onclick="saveData()">Simpan</button>
+      <button class="next-btn hidden" id="showFinalBtn" onclick="showFinal()">Paparan Penuh</button>
+    </div>
+
+    <div id="finalStep" class="hidden">
+      <h3>Paparan Penuh Data</h3>
+      <table id="finalTable">
+        <thead>
+          <tr>
+            <th>WARGANEGARA</th>
+            <th>KETIBAAN</th>
+            <th>PELEPASAN</th>
+          </tr>
+        </thead>
+        <tbody id="finalBody"></tbody>
+      </table>
+      <br>
+      <button class="back-btn" onclick="showDataEntry()">Kembali</button>
+      <button onclick="submitData()">Hantar Data</button>
+      <button onclick="generatePDF()">Jana PDF</button>
+      <button onclick="sendEmail()">Hantar Emel</button>
+      <button class="reset-btn" onclick="resetToMain()">Ke Menu Utama</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <div class="popup-content" id="popupMessage"></div>
+    <button onclick="closePopup()" id="closePopupBtn">Tutup</button>
+  </div>
+
+  <script>
+    // Populate year dropdown
+    const yearSelect = document.getElementById('year');
+    for (let i = 2025; i <= 2035; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      yearSelect.appendChild(option);
+    }
+
+    let countryData;
+    let formData = { countries: {} };
+
+    // Table configuration
+    const tableConfig = [
+      { category: "Malaysia", key: "Malaysia", isSubCategory: true },
+      { category: null, countries: [
+        "Singapura", "Australia", "New Zealand", "Kanada", "United Kingdom",
+        "Hong Kong", "Sri Lanka", "Bangladesh", "India", "Brunei Darussalam",
+        "Amerika Syarikat", "China", "Russia"
+      ], isSubCategory: false },
+      { category: "Amerika Latin", key: "Amerika Latin", isSubCategory: true },
+      { category: "Negara Arab", key: "Negara Arab", isSubCategory: true },
+      { category: null, countries: ["Jerman", "Perancis"], isSubCategory: false },
+      { category: "Norway, Sweden, Denmark, Finland", key: "Norway, Sweden, Denmark, Finland", isSubCategory: true },
+      { category: "Belgium, Luxemburg, Netherlands/Belanda", key: "Belgium, Luxemburg, Netherlands/Belanda", isSubCategory: true },
+      { category: "Eropah", key: "Eropah", isSubCategory: true },
+      { category: null, countries: [
+        "Filipina", "Thailand", "Taiwan", "Indonesia", "Pakistan", "Jepun", "Korea", "Vietnam"
+      ], isSubCategory: false },
+      { category: "Lain-lain Negara", key: "Lain-lain Negara", isSubCategory: true }
+    ];
+
+    // Fetch country data
+    google.script.run.withSuccessHandler(data => {
+      countryData = data;
+      populateTable();
+    }).getCountryData();
+
+    // Populate data entry table
+    function populateTable() {
+      const mainBody = document.getElementById('mainBody');
+      mainBody.innerHTML = '';
+
+      tableConfig.forEach(config => {
+        if (config.category) {
+          mainBody.innerHTML += `<tr class="category-header"><td colspan="3">${config.category}</td></tr>`;
+          countryData[config.key].forEach(country => {
+            mainBody.innerHTML += `
+              <tr>
+                <td class="sub-country">${country}</td>
+                <td><input type="number" id="${country}_ketibaan" min="0" step="1"></td>
+                <td><input type="number" id="${country}_pelepasan" min="0" step="1"></td>
+              </tr>`;
+          });
+        } else {
+          config.countries.forEach(country => {
+            mainBody.innerHTML += `
+              <tr>
+                <td>${country}</td>
+                <td><input type="number" id="${country}_ketibaan" min="0" step="1"></td>
+                <td><input type="number" id="${country}_pelepasan" min="0" step="1"></td>
+              </tr>`;
+          });
+        }
+      });
+    }
+
+    // Sanitize input
+    function sanitizeInput(input) {
+      return input.replace(/[<>"']/g, "").trim();
+    }
+
+    // Validate inputs
+    function validateInputs(countries) {
+      for (let country of countries) {
+        const ketibaan = document.getElementById(`${country}_ketibaan`)?.value;
+        const pelepasan = document.getElementById(`${country}_pelepasan`)?.value;
+        if ((ketibaan && Number(ketibaan) < 0) || (pelepasan && Number(pelepasan) < 0)) {
+          showPopup(`Data untuk ${country} tidak boleh negatif!`);
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Calculate totals for a category
+    function calculateTotal(category, countries) {
+      formData.countries[category] = {
+        ketibaan: countries.reduce((sum, country) => sum + (Number(document.getElementById(`${country}_ketibaan`)?.value) || 0), 0),
+        pelepasan: countries.reduce((sum, country) => sum + (Number(document.getElementById(`${country}_pelepasan`)?.value) || 0), 0)
+      };
+    }
+
+    // Save data locally
+    function saveData() {
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      const office = sanitizeInput(document.getElementById('office').value);
+
+      if (!month || !year || !office) {
+        showPopup('Sila lengkapkan bulan, tahun, dan pejabat!');
+        return;
+      }
+
+      if (!validateInputs(countryData.countriesToSave.concat(...Object.values(countryData).filter(arr => Array.isArray(arr))))) {
+        return;
+      }
+
+      formData.countries = {};
+
+      tableConfig.forEach(config => {
+        if (config.key) {
+          const countries = countryData[config.key];
+          countries.forEach(country => {
+            formData.countries[country] = {
+              ketibaan: Number(document.getElementById(`${country}_ketibaan`)?.value) || 0,
+              pelepasan: Number(document.getElementById(`${country}_pelepasan`)?.value) || 0
+            };
+          });
+          calculateTotal(config.key, countries);
+        } else {
+          config.countries.forEach(country => {
+            formData.countries[country] = {
+              ketibaan: Number(document.getElementById(`${country}_ketibaan`)?.value) || 0,
+              pelepasan: Number(document.getElementById(`${country}_pelepasan`)?.value) || 0
+            };
+          });
+        }
+      });
+
+      formData.month = month;
+      formData.year = year;
+      formData.office = office;
+
+      document.getElementById('showFinalBtn').classList.remove('hidden');
+      showPopup('Data disimpan sementara! Klik "Paparan Penuh" untuk semakan.');
+    }
+
+    // Show full data view
+    function showFinal() {
+      const finalBody = document.getElementById('finalBody');
+      finalBody.innerHTML = '';
+
+      // Malaysia
+      countryData["Malaysia"].forEach(country => {
+        finalBody.innerHTML += `
+          <tr>
+            <td class="sub-country">${country}</td>
+            <td>${(formData.countries[country]?.ketibaan || 0).toLocaleString('en-US')}</td>
+            <td>${(formData.countries[country]?.pelepasan || 0).toLocaleString('en-US')}</td>
+          </tr>`;
+      });
+      finalBody.innerHTML += `
+        <tr class="total-row">
+          <td>JUMLAH WARGANEGARA MALAYSIA</td>
+          <td>${(formData.countries["Malaysia"]?.ketibaan || 0).toLocaleString('en-US')}</td>
+          <td>${(formData.countries["Malaysia"]?.pelepasan || 0).toLocaleString('en-US')}</td>
+        </tr>`;
+
+      // Other Countries
+      const otherCountries = countryData.countriesToSave.filter(c => c !== "Malaysia");
+      let otherTotalTiba = 0;
+      let otherTotalPergi = 0;
+      otherCountries.forEach(country => {
+        const tiba = formData.countries[country]?.ketibaan || 0;
+        const pergi = formData.countries[country]?.pelepasan || 0;
+        otherTotalTiba += tiba;
+        otherTotalPergi += pergi;
+        finalBody.innerHTML += `
+          <tr>
+            <td>${country.toUpperCase()}</td>
+            <td>${tiba.toLocaleString('en-US')}</td>
+            <td>${pergi.toLocaleString('en-US')}</td>
+          </tr>`;
+      });
+
+      finalBody.innerHTML += `
+        <tr class="total-row">
+          <td>JUMLAH WARGANEGARA ASING</td>
+          <td>${otherTotalTiba.toLocaleString('en-US')}</td>
+          <td>${otherTotalPergi.toLocaleString('en-US')}</td>
+        </tr>
+        <tr class="total-row">
+          <td>JUMLAH KESELURUHAN SEMUA NEGARA</td>
+          <td>${(otherTotalTiba + (formData.countries["Malaysia"]?.ketibaan || 0)).toLocaleString('en-US')}</td>
+          <td>${(otherTotalPergi + (formData.countries["Malaysia"]?.pelepasan || 0)).toLocaleString('en-US')}</td>
+        </tr>`;
+
+      document.getElementById('finalStep').classList.remove('hidden');
+      document.getElementById('dataEntry').classList.add('hidden');
+    }
+
+    // Return to data entry
+    function showDataEntry() {
+      document.getElementById('dataEntry').classList.remove('hidden');
+      document.getElementById('finalStep').classList.add('hidden');
+    }
+
+    // Reset to main menu
+    function resetToMain() {
+      formData = { countries: {} };
+      document.getElementById('month').value = '';
+      document.getElementById('year').value = '';
+      document.getElementById('office').value = '';
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+      document.getElementById('showFinalBtn').classList.add('hidden');
+      document.getElementById('finalStep').classList.add('hidden');
+      document.getElementById('dataEntry').classList.remove('hidden');
+      showPopup('Data telah diset semula!');
+    }
+
+    // Show popup
+    function showPopup(message, url = null, loading = false) {
+      const popup = document.getElementById('popup');
+      const overlay = document.getElementById('overlay');
+      const popupMessage = document.getElementById('popupMessage');
+      const closeBtn = document.getElementById('closePopupBtn');
+      popupMessage.innerHTML = loading ? `${message}<div class="loading"></div>` : (url ? `${message}<br><a href="${url}" target="_blank">Buka PDF</a>` : message);
+      closeBtn.style.display = loading ? 'none' : 'inline-block';
+      popup.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+
+    // Close popup
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    // Submit data to server
+    function submitData() {
+      showPopup('Data sedang dihantar...', null, true);
+      google.script.run
+        .withSuccessHandler(message => {
+          closePopup();
+          showPopup(message);
+        })
+        .withFailureHandler(error => {
+          closePopup();
+          showPopup('Gagal menghantar data: ' + error.message);
+        })
+        .saveData(formData);
+    }
+
+    // Generate PDF
+    function generatePDF() {
+      showPopup('PDF sedang dijana...', null, true);
+      google.script.run
+        .withSuccessHandler(url => {
+          closePopup();
+          showPopup('PDF berjaya dijana!', url);
+        })
+        .withFailureHandler(error => {
+          closePopup();
+          showPopup('Gagal menjana PDF: ' + error.message);
+        })
+        .generatePDF(formData);
+    }
+
+    // Send email
+    function sendEmail() {
+      showPopup('Emel sedang dihantar...', null, true);
+      google.script.run
+        .withSuccessHandler(message => {
+          closePopup();
+          showPopup(message);
+        })
+        .withFailureHandler(error => {
+          closePopup();
+          showPopup('Gagal menghantar emel: ' + error.message);
+        })
+        .sendEmail(formData);
+    }
+  </script>
+</body>
+</html>
